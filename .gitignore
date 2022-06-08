@@ -1,0 +1,4 @@
+*.pyc
+
+res/training_data
+res/seed_data

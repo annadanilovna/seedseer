@@ -6,6 +6,7 @@ WORD_LIST = "res/word_list.txt"
 
 # Base path for training data
 TRAINING_DATA_PATH = "res/training_data"
+SEED_DATA_PATH = "res/seed_data"
 
 FONTS = ["res/Lato-SemiBold.ttf"]
 # "lbb": "res/Lato-Bold.ttf",
@@ -20,8 +21,8 @@ BLUR_RADIUS_MAX = 5
 BLUR_RADIUS_INCREMENT = 1
 
 # in degrees, default 4 degrees in .25 steps = 8 options
-ROTATION_MIN = -2
-ROTATION_MAX = 2
+ROTATION_MIN = -10
+ROTATION_MAX = 10
 ROTATION_INCREMENT = .5
 
 # 1626 words

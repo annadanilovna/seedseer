@@ -59,7 +59,7 @@ def generate():
                     # rotations
                     for rot_step in range(0, rot_steps):
                         cur_rot = rot_min + rot_step * rot_incr
-                        # img = rotate_image(img, cur_rot)
+
                         im1 = None
                         img_name = name_image(word, font, cur_blur, cur_rot)
                         img = Image.new("L", (img_w, img_h), color="white")
@@ -71,5 +71,8 @@ def generate():
                         elif blur == "GaussianBlur":
                             im1 = img.filter(ImageFilter.BoxBlur(cur_blur))
                             img = im1
+
+                        im1 = img.rotate(cur_rot, fillcolor="white")
+                        img = im1
 
                         img.save(f"{img_name}", "PNG")

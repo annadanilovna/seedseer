@@ -25,6 +25,14 @@ ROTATION_MIN = -10
 ROTATION_MAX = 10
 ROTATION_INCREMENT = .5
 
+TD_WIDTH = 100
+TD_HEIGHT = 50
+TD_FONT_SIZE = 20
+TD_DPI = 72
+TD_X_OFFSET = 5
+TD_Y_OFFSET = 5
+TD_BG = "#a0a0a0"
+
 # 1626 words
 # * 8 rotation options
 # * 5 blur options

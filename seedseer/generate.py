@@ -35,8 +35,6 @@ def generate():
     rot_incr = config.ROTATION_INCREMENT
     rot_steps = int((rot_max - rot_min) / rot_incr)
 
-    bg_color = config.TD_BG
-
     wl = []
     with open(config.WORD_LIST) as fh:
         for row in fh:
@@ -64,7 +62,7 @@ def generate():
 
                         im1 = None
                         img_name = name_image(word, font, cur_blur, cur_rot)
-                        img = Image.new("L", (img_w, img_h), color=bg_color)
+                        img = Image.new("L", (img_w, img_h), color="white")
                         draw = ImageDraw.Draw(img)
                         draw.text((start_x, start_y), word, font=pil_font)
                         if blur == "BoxBlur":
@@ -74,7 +72,7 @@ def generate():
                             im1 = img.filter(ImageFilter.BoxBlur(cur_blur))
                             img = im1
 
-                        im1 = img.rotate(cur_rot, fillcolor=bg_color)
+                        im1 = img.rotate(cur_rot, fillcolor="white")
                         img = im1
 
                         img.save(f"{img_name}", "PNG")

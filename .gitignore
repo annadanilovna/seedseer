@@ -2,3 +2,6 @@
 
 res/training_data
 res/seed_data
+res/tf
+
+__pycache__

@@ -9,6 +9,8 @@ tensorflow = "*"
 pandas = "*"
 numpy = "*"
 matplotlib = "*"
+pyyaml = "*"
+h5py = "*"
 
 [dev-packages]
 

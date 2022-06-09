@@ -16,21 +16,24 @@ An image of each of the mnemonic seed words should go in `SEED_DATA_PATH` (by de
 
 The first step is to review the `seedseer/config.py`. Adjust parameters according to your requirements.
 
-Then, generate the training data and import into Tensorflow. With the default config and the supplied Monero word list, this will provide 260,160 images to train the system with. On a 11th generation i5, this took ~480s and takes 1.1gb of storage.
+Then, generate the training data that will be used to train the TensorFlow model. With the default config and the supplied Monero word list, this will provide 104,064 images to train the system with. On a 11th generation i5, this took ~480s and takes 1.1gb of storage.
 
-    python -m seedseer gen
-    python -m seedseer tfimport
+    python -m seedseer gen [--k <job_key>]
 
-Next, train the neural network.
+Next, import the dataset into TensorFlow and train the model network.
 
-    python -m seedseer train
+    python -m seedseer train [--k <job_key>]
 
 Finally, attempt to recover any seed words using the neural network.
 
-    python -m seedseer recover
+    python -m seedseer recover [--k <job_key>]
+
+The optional `job_key` (-k) parameter allows for namespacing of different simultaneous tasks.
 
 ## fonts    
-It's extremely helpful to know the font used by the wallet software. For instance [Cake Wallet](https://github.com/cake-tech/cake_wallet/) uses 4 weights of Lato.
+Accuracy won't be very good if you don't know the font that the app/site/software uses. Look this up in the source code (if open source/free) or use a website (link below) like WhatTheFont to attempt to at least identify a close match.
+
+For instance [Cake Wallet](https://github.com/cake-tech/cake_wallet/) uses 4 weights of Lato.
 
     fonts:
     - family: Lato
@@ -40,10 +43,10 @@ It's extremely helpful to know the font used by the wallet software. For instanc
       - asset: assets/fonts/Lato-Semibold.ttf
       - asset: assets/fonts/Lato-Bold.ttf
 
-Further digging through the source code revealed that the creation page that listed the mnemonic before taking the user to their wallet used the Lato Semibold (600 weight).
+Further digging through the source code revealed that the creation page that listed the mnemonic before taking the user to their wallet used specifically the *Lato Semibold (600 weight)*.
 
 You can use whatever font you like, but the closer to the actual font used, the better. If you can't find the font easily, [WhatTheFont](https://www.myfonts.com/WhatTheFont/) is a good resource for determining a font from a screenshot.
 
 ## images
 
-The test data that is generated is 100px x 50px at 72 DPI. Images are grayscale with the text in black and background grey (#a0a0a0) to match the images from the Cake Wallet I had. You can change these as necessary in /config.py`
+By default, the generated training images are greyscale with dimensions of 100px x 50px at 72 dpi. Text in black and background grey (#a0a0a0). This can all be changed in `seedseer/config.py``

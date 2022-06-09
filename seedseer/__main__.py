@@ -8,13 +8,12 @@ import time
 # import recover
 # import train
 from .generate import generate
-from .tfimport import tfimport
+from .tensor_flow_model import TensorFlowModel
 
 
 if __name__ == "__main__":
 
-    logging.basicConfig(level=logging.DEBUG,
-                        filename="seedseer.log")
+    logging.basicConfig(level=logging.DEBUG)
 
     parser = argparse.ArgumentParser(description="ai seed recovery")
     parser.add_argument("action")
@@ -24,11 +23,11 @@ if __name__ == "__main__":
     start = time.time()
     if args.action == "gen":
         generate()
-    elif args.action == "import":
-        tfimport()
     elif args.action == "train":
-        # train.train()
-        pass
+        tf = TensorFlowModel()
+        tf.train()
+        tf.save()
+        tf.summary()
     elif args.action == "recover":
         # recover.recover()
         pass

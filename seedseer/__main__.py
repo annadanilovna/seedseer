@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 
-
 import argparse
 import logging
 import time
 
 # import recover
 # import train
-from .generate import generate
+from . import config
+from .sprite_generator import SpriteGenerator
 from .tensor_flow_model import TensorFlowModel
 
 
 if __name__ == "__main__":
 
-    logging.basicConfig(level=logging.DEBUG)
+    # set up logging. make sure correct directories exist
+    logging.basicConfig(level=logging.DEBUG, filename=config.LOG_FILE)
 
     parser = argparse.ArgumentParser(description="ai seed recovery")
     parser.add_argument("action")
@@ -22,7 +23,8 @@ if __name__ == "__main__":
 
     start = time.time()
     if args.action == "gen":
-        generate()
+        sg = SpriteGenerator()
+        sg.generate()
     elif args.action == "train":
         tf = TensorFlowModel()
         tf.train()

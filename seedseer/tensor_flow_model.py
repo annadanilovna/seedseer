@@ -1,6 +1,6 @@
 """Import data into TF."""
 
-import logging
+# import logging
 import os
 
 import tensorflow as tf
@@ -47,10 +47,6 @@ class TensorFlowModel:
             batch_size=config.TF_BATCH_SIZE)
 
         self._class_names = self._train_ds.class_names
-        num_classes = len(self._class_names)
-
-        logging.info(f"Class names ({num_classes}): {str(self._class_names)}")
-
         self._train_ds.cache().prefetch(buffer_size=self._autotune)
         self._val_ds.cache().prefetch(buffer_size=self._autotune)
 
@@ -58,14 +54,14 @@ class TensorFlowModel:
         """Initialize model."""
         self._model = tf.keras.Sequential([
             tf.keras.layers.Rescaling(1./255),
-            tf.keras.layers.Conv2D(32, 3, activation='relu'),
-            tf.keras.layers.MaxPooling2D(),
-            tf.keras.layers.Conv2D(32, 3, activation='relu'),
-            tf.keras.layers.MaxPooling2D(),
-            tf.keras.layers.Conv2D(32, 3, activation='relu'),
+            # tf.keras.layers.Conv2D(32, 3, activation='relu'),
+            # tf.keras.layers.MaxPooling2D(),
+            # tf.keras.layers.Conv2D(32, 3, activation='relu'),
+            # tf.keras.layers.MaxPooling2D(),
+            # tf.keras.layers.Conv2D(32, 3, activation='relu'),
             tf.keras.layers.MaxPooling2D(),
             tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(128, activation='relu'),
+            # tf.keras.layers.Dense(128, activation='relu'),
             tf.keras.layers.Dense(len(self._class_names))
         ])
 
@@ -81,16 +77,16 @@ class TensorFlowModel:
         cpkt_path = self._cpkt_model_fit
         if os.path.isfile(cpkt_path):
             self._model.load_weights(self._cpkt_model_fit)
-        else:
-            cb = tf.keras.callbacks.ModelCheckpoint(filepath=cpkt_path,
-                                                    save_weights_only=True,
-                                                    verbose=1)
-            self._model.fit(
-                self._train_ds,
-                validation_data=self._val_ds,
-                epochs=3,
-                callbacks=[cb]
-            )
+
+        cb = tf.keras.callbacks.ModelCheckpoint(filepath=cpkt_path,
+                                                save_weights_only=True,
+                                                verbose=1)
+        self._model.fit(
+            self._train_ds,
+            validation_data=self._val_ds,
+            epochs=100,
+            callbacks=[cb]
+        )
 
     def summary(self):
         """Print model summary."""

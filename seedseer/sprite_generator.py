@@ -1,12 +1,15 @@
 """Generate training images."""
 
+import hashlib
 import logging
 import os
+import random
+import time
 
 from PIL import ImageFont, ImageDraw, Image, ImageFilter
 
 from . import config
-from .util import has_method, calc_steps, find_best_sprite_dims
+# from .util import has_method, calc_steps, find_best_sprite_dims
 from .config_loader import ConfigLoader
 
 
@@ -67,6 +70,7 @@ class SpriteGenerator:
 
     def __init__(self):
         """Init."""
+        random.seed(time.time())
         # opts = GeneratorOptions()
         # opts.add_opts_from_config(["words", "fonts", "blurs",
         #                            "rotations", "backgrounds"])
@@ -85,26 +89,52 @@ class SpriteGenerator:
         # opts.add_prop("img_props", img_props)
         # opts.add_prop("text_props", text_props)
         #
-        # logging.info(f"total perms: {self._opts.get_perm_cnt()}")
+        # logging.info(f"total perms: {self._opts.getperm_cnt()}")
         # logging.info(f"total steps: {self._opts.get_step_cnt()}")
         pass
 
     def get_dir(self, word):
         """Gets dir (and makes sure it exists.)"""
-        path = f"{config.TRAINING_DATA_PATH}/{word[0]}/{word}"
+        path = f"{config.TRAINING_DATA_PATH}/{word}"
         if not os.path.exists(path):
             os.makedirs(path)
         return path
 
-    def name_image(self, word, font, blur, rot):
+    def name_image(self, word):
         """Get programmatic name for generated image."""
-        return f"{self.get_dir(word)}/{word}-b{blur}-r{rot}.png"
+        h = hashlib.md5(f"{word}{random.random()}".encode("utf-8")).hexdigest()
+        return f"{self.get_dir(word)}/{word}-{h[0:10]}.png"
+
+    def init_timing_log(self, predicted_total=None):
+        self._tl_st = time.time()
+        self._tl_itr = 0
+        self._tl_pt = 0
+        self._tl_tel = 0
+        if predicted_total:
+            self._tl_pt = predicted_total
+
+    def update_timing_log(self, force=False):
+        self._tl_itr += 1
+        if self._tl_itr % config.TL_TIMING_DIV == 0 or force:
+            tl_et = time.time()
+            el = round(tl_et - self._tl_st, 2)
+            self._tl_tel += el
+            p = ""
+            if self._tl_pt > 0:
+                # get % done.
+                pct = round((self._tl_itr * 1.0 / self._tl_pt) * 100, 4)
+                p = f"{round(pct, 4)}% done"
+
+            logging.info(f"Generated {self._tl_itr} images in {el}s. {p}")
+            self._tl_st = tl_et
+
+    def end_timing_log(self):
+        self._update_timing_log(force=True)
 
     def generate(self):
         """Generate. @TODO migrate to opts in config."""
-        blurs = config.BLURS
-        fonts = config.FONTS
 
+        blurs = config.BLURS
         blur_min = config.BLUR_RADIUS_MIN
         blur_max = config.BLUR_RADIUS_MAX
         blur_incr = config.BLUR_RADIUS_INCREMENT
@@ -114,20 +144,20 @@ class SpriteGenerator:
         rot_max = config.ROTATION_MAX
         rot_incr = config.ROTATION_INCREMENT
         rot_steps = int((rot_max - rot_min) / rot_incr)
+        pil_font = ImageFont.truetype(font=config.FONT, size=config.FONT_SIZE)
 
-        wl = []
+        bg_steps = len(config.SPRITE_BGS)
+        total_steps = blur_steps * rot_steps * bg_steps
+
+        wl_total_steps = total_steps * 1626
+        logging.info("Drawing images.")
+        logging.info(f"[bs:{blur_steps}, rs:{rot_steps}, tot: {total_steps}]")
+        logging.info(f"real total: {wl_total_steps}")
+
+        self.init_timing_log(wl_total_steps)
         with open(config.WORD_LIST) as fh:
             for row in fh:
-                wl.append(row.strip())
-
-        for word in wl:
-            logging.info(f"{word}")
-            for font in fonts:
-                pil_font = ImageFont.truetype(
-                    font=font, size=config.FONT_SIZES[0])
-
-                (img_w, img_h) = pil_font.getsize(word)
-
+                word = row.strip()
                 # blur types
                 for blur in blurs:
                     # blur amounts
@@ -136,18 +166,26 @@ class SpriteGenerator:
                         # rotations
                         for rot_step in range(0, rot_steps):
                             cur_rot = rot_min + rot_step * rot_incr
-                            self.draw(word, font, blur, cur_blur, cur_rot,
-                                      pil_font)
+                            # background colors
+                            for bg_color in config.SPRITE_BGS:
+                                self.draw(word, blur, cur_blur,
+                                          cur_rot, pil_font,
+                                          bg_color)
+                                self.update_timing_log()
+        self.end_timing_log()
 
-    def draw(self, word, font, blur, cur_blur, cur_rot, pil_font):
+    def draw(self, word, blur, cur_blur, cur_rot, pil_font, bg_color):
         """Draw on image."""
+        img_name = self.name_image(word)
+
         start_x = config.TEXT_X_OFFSET
         start_y = (config.SPRITE_HEIGHT - config.TEXT_Y_OFFSET
-                   * 2 - config.FONT_SIZES[0]) / 2
-        img_name = self.name_image(word, font, cur_blur, cur_rot)
+                   * 2 - config.FONT_SIZE) / 2
+
         img = Image.new(config.SPRITE_COLORSPACE,
-                        (config.SPRITE_WIDTH, config.SPRITE_HEIGHT),
-                        color=config.SPRITE_BGS[0])
+                        (config.SPRITE_WIDTH,
+                         config.SPRITE_HEIGHT),
+                        color=bg_color)
 
         # add text
         draw = ImageDraw.Draw(img)
@@ -163,7 +201,7 @@ class SpriteGenerator:
             img = im1
 
         # add rotation
-        im1 = img.rotate(cur_rot, fillcolor=config.SPRITE_BGS[0])
+        im1 = img.rotate(cur_rot, fillcolor=bg_color)
         img = im1
 
         img.save(f"{img_name}", "PNG")

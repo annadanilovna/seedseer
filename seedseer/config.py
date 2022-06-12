@@ -6,14 +6,14 @@ SEED_DATA_PATH = "res/seed_data"
 
 # cryptocurrency and/or wallet's wordlist for seed generation
 WORD_LIST = "res/word_list.txt"
-LOG_FILE = "seedeer.log"
+LOG_FILE = "seedseer.log"
 
 # fonts to generate training data with. should be truetype (ttf)
 # fonts unless you want to modify the source code (which wouldn't be hard.)
 #
-FONTS = ["res/Lato-SemiBold.ttf"]
-FONT_SIZES = [16]
-FONT_COLORS = ["#000000"]
+FONT = "res/Lato-SemiBold.ttf"
+FONT_SIZE = 16
+FONT_COLOR = "#000000"
 
 BLURS = ["BoxBlur", "GaussianBlur"]
 BLUR_RADIUS_MIN = 1
@@ -28,7 +28,17 @@ SPRITE_COLORSPACE = "L"
 SPRITE_WIDTH = 100
 SPRITE_HEIGHT = 50
 SPRITE_DPI = 72
-SPRITE_BGS = ["#a0a0a0"]
+
+# "#090909", "#929292",
+SPRITE_BGS = ["#a0a0a0", "#a3a3a3",
+              "#a8a8a8", "#c0c0c0",
+              "#c6c6c6", "#cacaca",
+              "#cccccc", "#d0d0d0",
+              "#dadada", "#dbdbdb",
+              "#d9d9d9", "#e2e2e2",
+              "#eeeeee"]
+
+TL_TIMING_DIV = 1000
 
 TEXT_PADDING = 5
 TEXT_X_OFFSET = TEXT_PADDING

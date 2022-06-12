@@ -1,7 +1,5 @@
-"""Import data into TF."""
+"""Classify and identify text in images using TensorFlow CNNs."""
 
-# import logging
-import os
 
 import tensorflow as tf
 import numpy as np
@@ -12,44 +10,39 @@ from . import config
 np.set_printoptions(precision=4)
 
 
-class TensorFlowModel:
-    """Handle import of tensorflow dataset training data."""
+class ImageClassifier:
+    """Classify and identify text in images using TensorFlow CNNs."""
 
-    def __init__(self):
+    def __init__(self, load_saved_state=False):
         """Initialization."""
-        self._autotune = tf.data.AUTOTUNE
-        # cpkt_model_fit = f"{config.TF_CHECKPOINT_PATH}/{
-        # config.TF_DS_INIT_CP}"
-        # self._cpkt_model_fit = cpkt_model_fit
-
         self._init_datasets()
         self._init_model()
 
-    def _init_datasets(self):
-        """
-        Initialize training and validation datasets.
-        """
-        self._train_ds = tf.keras.utils.image_dataset_from_directory(
-            config.TRAINING_DATA_PATH,
-            validation_split=config.TF_VALIDATION_SPLIT,
-            subset="training",
+    def _load_image_dataset(self, path, split, subset, prefetch=True):
+        """Load a directory of images into a Keras dataset."""
+        ds = tf.keras.utils.image_dataset_from_directory(
+            path,
+            validation_split=split,
+            subset=subset,
             seed=config.TF_SEED,
             image_size=(config.TF_IMG_WIDTH,
                         config.TF_IMG_HEIGHT),
             batch_size=config.TF_BATCH_SIZE)
 
-        self._val_ds = tf.keras.utils.image_dataset_from_directory(
-            config.TRAINING_DATA_PATH,
-            validation_split=config.TF_VALIDATION_SPLIT,
-            subset="validation",
-            seed=config.TF_SEED,
-            image_size=(config.TF_IMG_WIDTH,
-                        config.TF_IMG_HEIGHT),
-            batch_size=config.TF_BATCH_SIZE)
+        if prefetch:
+            ds.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
+
+        return ds
+
+    def _init_datasets(self):
+        """Initialize training and validation datasets."""
+        path = config.TRAINING_DATA_PATH
+        split = config.TF_VALIDATION_SPLIT
+
+        self._train_ds = self._load_image_dataset(path, split, "training")
+        self._val_ds = self.load_image_dataset(path, split, "validation")
 
         self._class_names = self._train_ds.class_names
-        self._train_ds.cache().prefetch(buffer_size=self._autotune)
-        self._val_ds.cache().prefetch(buffer_size=self._autotune)
 
     def _init_model(self):
         """Initialize model."""
@@ -76,19 +69,7 @@ class TensorFlowModel:
         """Train model. Pull from checkpoint if possible, otherwise run
         new fit."""
 
-        # # Train the model with the new callback
-        # model.fit(train_images,
-        #           train_labels,
-        #           epochs=50,
-        #           batch_size=batch_size,
-        #           callbacks=[cp_callback],
-        #           validation_data=(test_images, test_labels),
-        #           verbose=0)
-
         cpkt_path = config.TF_CHECKPOINT_PATH + "cp-{epoch:04d}.ckpt"
-
-        # Save the weights using the `checkpoint_path` format
-        # self._model.save_weights(cpkt_path.format(epoch=0))
 
         # load latest weights
         latest = tf.train.latest_checkpoint(config.TF_CHECKPOINT_PATH)
@@ -108,6 +89,11 @@ class TensorFlowModel:
             callbacks=[cb]
         )
 
+    def classify(self, ds_path=config.SEED_DATA_PATH):
+        """Classify images in a directory against a trained CNN."""
+        ds = self._load_image_dataset(ds_path, None, None, False)
+        self._model.predict(ds)
+
     def summary(self):
         """Print model summary."""
         self._model.summary()
@@ -120,9 +106,3 @@ class TensorFlowModel:
         """Load from file."""
         fn = f"{config.TF_MODEL_PATH}/{config.TF_MODEL_FILE}"
         self._model = tf.keras.models.load_model(fn)
-
-    @staticmethod
-    def process_path(file_path):
-        """Process file path."""
-        label = tf.strings.split(file_path, os.sep)[-2]
-        return tf.io.read_file(file_path), label

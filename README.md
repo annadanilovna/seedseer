@@ -16,7 +16,7 @@ An image of each of the mnemonic seed words should go in `SEED_DATA_PATH` (by de
 
 The first step is to review the `seedseer/config.py`. Adjust parameters according to your requirements.
 
-Then, generate the training data that will be used to train the TensorFlow model. With the default config and the supplied Monero word list, this will provide 104,064 images to train the system with. On a 11th generation i5, this took ~480s and takes 1.1gb of storage.
+Then, generate the training data that will be used to train the TensorFlow model. With the default config and the supplied Monero word list, this will provide 3,382,080 training images.
 
     python -m seedseer gen [--k <job_key>]
 

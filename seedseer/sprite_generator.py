@@ -147,7 +147,7 @@ class SpriteGenerator:
         pil_font = ImageFont.truetype(font=config.FONT, size=config.FONT_SIZE)
 
         bg_steps = len(config.SPRITE_BGS)
-        total_steps = blur_steps * rot_steps * bg_steps
+        total_steps = blur_steps * rot_steps * bg_steps * 2
 
         wl_total_steps = total_steps * 1626
         logging.info("Drawing images.")

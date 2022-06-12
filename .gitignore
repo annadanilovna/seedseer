@@ -7,3 +7,6 @@ res/tf
 __pycache__
 
 seedseer.log
+
+.ipynb_checkpoints
+res/jupyter

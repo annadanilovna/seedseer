@@ -24,8 +24,8 @@ if __name__ == "__main__":
     # fh = logging.FileHandler('tensorflow.log')
     # fh.setLevel(logging.DEBUG)
     # fh.setFormatter(formatter)
-    # log.addHandler(fh)    tf_logger.basicConfig(level=logging.DEBUG, filename=config.LOG_FILE)
-
+    # log.addHandler(fh)    tf_logger.basicConfig(level=logging.DEBUG,
+    # filename=config.LOG_FILE)
     parser = argparse.ArgumentParser(description="ai seed recovery")
     parser.add_argument("action")
 

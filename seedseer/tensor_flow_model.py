@@ -18,8 +18,9 @@ class TensorFlowModel:
     def __init__(self):
         """Initialization."""
         self._autotune = tf.data.AUTOTUNE
-        cpkt_model_fit = f"{config.TF_CHECKPOINT_PATH}/{config.TF_DS_INIT_CP}"
-        self._cpkt_model_fit = cpkt_model_fit
+        # cpkt_model_fit = f"{config.TF_CHECKPOINT_PATH}/{
+        # config.TF_DS_INIT_CP}"
+        # self._cpkt_model_fit = cpkt_model_fit
 
         self._init_datasets()
         self._init_model()
@@ -74,13 +75,32 @@ class TensorFlowModel:
     def train(self):
         """Train model. Pull from checkpoint if possible, otherwise run
         new fit."""
-        cpkt_path = self._cpkt_model_fit
-        if os.path.isfile(cpkt_path):
-            self._model.load_weights(self._cpkt_model_fit)
 
-        cb = tf.keras.callbacks.ModelCheckpoint(filepath=cpkt_path,
-                                                save_weights_only=True,
-                                                verbose=1)
+        # # Train the model with the new callback
+        # model.fit(train_images,
+        #           train_labels,
+        #           epochs=50,
+        #           batch_size=batch_size,
+        #           callbacks=[cp_callback],
+        #           validation_data=(test_images, test_labels),
+        #           verbose=0)
+
+        cpkt_path = config.TF_CHECKPOINT_PATH + "cp-{epoch:04d}.ckpt"
+
+        # Save the weights using the `checkpoint_path` format
+        # self._model.save_weights(cpkt_path.format(epoch=0))
+
+        # load latest weights
+        latest = tf.train.latest_checkpoint(config.TF_CHECKPOINT_PATH)
+        self._model.load_weights(latest)
+
+        # Create a callback that saves the model's weights every 5 epochs
+        cb = tf.keras.callbacks.ModelCheckpoint(
+            filepath=cpkt_path,
+            verbose=1,
+            save_weights_only=True,
+            save_freq=5*config.TF_BATCH_SIZE)
+
         self._model.fit(
             self._train_ds,
             validation_data=self._val_ds,
